@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vagas no Ônibus — Cadastro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bus: #F5A623;
+    --bus-dark: #D4880A;
+    --night: #0D0F14;
+    --panel: #14171F;
+    --card: #1C2030;
+    --border: rgba(245,166,35,0.18);
+    --text: #E8EAF0;
+    --muted: #6B7280;
+    --green: #22C55E;
+    --red: #EF4444;
+  }
+
+  body {
+    background: var(--night);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(245,166,35,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,166,35,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    pointer-events: none;
+    z-index: 0;
+    animation: glowPulse 6s ease-in-out infinite;
+  }
+  @keyframes glowPulse { 0%,100% { opacity:.6; transform:scale(1); } 50% { opacity:1; transform:scale(1.08); } }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 100px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.7s ease both;
+  }
+  .bus-icon {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 20px rgba(245,166,35,0.5));
+    animation: bounce 2.5s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 6vw, 44px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #F5A623 0%, #FFD580 50%, #F5A623 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; letter-spacing: .5px; font-weight: 300; }
+
+  .date-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 20px;
+    margin: 20px auto 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--bus);
+    animation: fadeIn .8s .3s both;
+  }
+  .date-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--bus);
+    box-shadow: 0 0 8px var(--bus);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+
+  /* BANNERS */
+  .info-banner {
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeIn .6s ease both;
+  }
+  .info-banner.red { background: linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.06)); border: 1px solid rgba(239,68,68,.3); }
+  .info-banner.orange { background: linear-gradient(135deg,rgba(245,166,35,.12),rgba(245,166,35,.06)); border: 1px solid rgba(245,166,35,.3); }
+  .info-banner .emoji { font-size: 48px; margin-bottom: 12px; display: block; }
+  .info-banner h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .info-banner.red h2 { color: #EF4444; }
+  .info-banner.orange h2 { color: var(--bus); }
+  .info-banner p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 32px;
+    margin-bottom: 24px;
+    animation: fadeUp .6s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--bus), transparent);
+  }
+
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--bus);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .field { margin-bottom: 20px; }
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 8px; letter-spacing: .3px; }
+
+  input[type="text"], input[type="password"], select {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .25s, box-shadow .25s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  input[type="text"]:focus, input[type="password"]:focus, select:focus {
+    border-color: var(--bus);
+    box-shadow: 0 0 0 3px rgba(245,166,35,.12);
+  }
+  input::placeholder { color: #3A3F52; }
+  .select-wrap { position: relative; }
+  .select-wrap::after { content: '▾'; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: var(--bus); pointer-events: none; font-size: 14px; }
+  select option { background: var(--panel); }
+
+  .trip-options { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 4px; }
+  .trip-option input[type="radio"] { display: none; }
+  .trip-option label {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 18px 10px; border: 1px solid rgba(255,255,255,.08); border-radius: 14px;
+    cursor: pointer; transition: all .2s; text-align: center; font-size: 13px;
+    color: var(--muted); margin: 0; background: var(--panel);
+  }
+  .trip-option label .ico { font-size: 24px; }
+  .trip-option input:checked + label { border-color: var(--bus); background: rgba(245,166,35,.08); color: var(--bus); box-shadow: 0 0 16px rgba(245,166,35,.1); }
+  .trip-option label:hover { border-color: rgba(245,166,35,.4); color: var(--text); }
+
+  .btn-submit {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--bus), var(--bus-dark));
+    border: none; border-radius: 14px;
+    color: #0D0F14; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700;
+    letter-spacing: .5px; cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    margin-top: 8px;
+    box-shadow: 0 4px 24px rgba(245,166,35,.25);
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(245,166,35,.35); }
+  .btn-submit:active { transform: translateY(0); }
+
+  .btn-danger {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #EF4444, #B91C1C);
+    border: none; border-radius: 14px;
+    color: #fff; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: transform .2s, box-shadow .2s;
+    margin-top: 8px; box-shadow: 0 4px 20px rgba(239,68,68,.25);
+  }
+  .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(239,68,68,.35); }
+
+  .btn-success {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #22C55E, #15803D);
+    border: none; border-radius: 14px;
+    color: #fff; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: transform .2s, box-shadow .2s;
+    margin-top: 8px; box-shadow: 0 4px 20px rgba(34,197,94,.25);
+  }
+  .btn-success:hover { transform: translateY(-2px); }
+
+  .btn-new {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); padding: 12px 28px; border-radius: 10px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    margin-top: 8px; transition: all .2s;
+  }
+  .btn-new:hover { border-color: var(--bus); color: var(--bus); }
+
+  /* SUCCESS */
+  .success-panel { display: none; text-align: center; padding: 40px 32px; animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .success-panel .check { font-size: 64px; display: block; margin-bottom: 16px; filter: drop-shadow(0 0 20px rgba(34,197,94,.5)); }
+  .success-panel h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--green); margin-bottom: 10px; }
+  .success-panel p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .success-detail { background: var(--panel); border: 1px solid rgba(34,197,94,.2); border-radius: 12px; padding: 16px 20px; margin: 20px 0; text-align: left; font-size: 14px; line-height: 1.8; }
+  .success-detail span { color: var(--green); font-weight: 500; }
+
+  /* LIST */
+  .registrations-list { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; padding-right: 4px; }
+  .registrations-list::-webkit-scrollbar { width: 4px; }
+  .registrations-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .reg-item { display: flex; align-items: center; gap: 12px; background: var(--panel); border-radius: 12px; padding: 14px 16px; animation: fadeIn .3s ease both; }
+  .reg-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--bus), var(--bus-dark)); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: #0D0F14; flex-shrink: 0; }
+  .reg-info { flex: 1; min-width: 0; }
+  .reg-name { font-weight: 500; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .reg-detail { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .reg-badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 100px; flex-shrink: 0; }
+  .badge-ida-volta { background: rgba(245,166,35,.15); color: var(--bus); }
+  .badge-ida { background: rgba(34,197,94,.15); color: var(--green); }
+  .badge-volta { background: rgba(99,102,241,.15); color: #818CF8; }
+  .count-badge { display: inline-flex; align-items: center; justify-content: center; background: rgba(245,166,35,.15); color: var(--bus); font-size: 11px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; margin-left: 8px; vertical-align: middle; }
+
+  /* ADMIN BUTTON */
+  .admin-btn {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--muted); font-size: 22px; cursor: pointer; z-index: 100;
+    transition: all .2s; box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .admin-btn:hover { border-color: var(--bus); color: var(--bus); transform: scale(1.1); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.7); z-index: 200;
+    backdrop-filter: blur(4px);
+    animation: fadeIn .2s ease both;
+  }
+  .modal {
+    display: none; position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 201;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px;
+    width: 90%; max-width: 380px;
+    animation: popIn .3s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .modal-open .modal-overlay,
+  .modal-open .modal { display: block; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--bus); margin-bottom: 24px; text-align: center; }
+  .msg-error { color: var(--red); font-size: 13px; margin-bottom: 12px; }
+  .msg-ok { color: var(--green); font-size: 13px; margin-bottom: 12px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes popIn { from { opacity:0; transform:translate(-50%,-50%) scale(.85); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+
+  @media (max-width: 480px) {
+    .card { padding: 24px 18px; }
+    .trip-options { grid-template-columns: 1fr; }
+    h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow"></div>
+
+<div class="container">
+  <header>
+    <span class="bus-icon">🚌</span>
+    <h1>Vagas no Ônibus</h1>
+    <p class="subtitle">Cadastro diário de passageiros universitários</p>
+    <div class="date-badge">
+      <span class="date-dot"></span>
+      <span id="date-label">Carregando...</span>
+    </div>
+  </header>
+
+  <!-- BANNER: FIM DE SEMANA -->
+  <div class="info-banner red" id="weekend-banner" style="display:none">
+    <span class="emoji">🏖️</span>
+    <h2>Sem viagens hoje!</h2>
+    <p>O ônibus opera somente de <strong>segunda a sexta-feira</strong>.<br>Volte na próxima semana para fazer seu cadastro.</p>
+  </div>
+
+  <!-- BANNER: ANTES DAS 8H -->
+  <div class="info-banner orange" id="early-banner" style="display:none">
+    <span class="emoji">⏰</span>
+    <h2>Ainda não abriu!</h2>
+    <p>O cadastro de vagas abre às <strong>08:00</strong>.<br>Volte mais tarde para garantir sua vaga.</p>
+  </div>
+
+  <!-- BANNER: FECHADO PELO ADMIN -->
+  <div class="info-banner red" id="closed-banner" style="display:none">
+    <span class="emoji">🔒</span>
+    <h2>Cadastro encerrado</h2>
+    <p>As vagas para hoje já foram encerradas pelo administrador.<br>Obrigado a todos que se cadastraram!</p>
+  </div>
+
+  <!-- FORM CARD -->
+  <div class="card" id="form-card" style="display:none">
+    <div id="form-section">
+      <div class="section-label">📋 Seus dados</div>
+
+      <div class="field">
+        <label for="nome">Nome completo</label>
+        <input type="text" id="nome" placeholder="Ex: Maria Silva" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="faculdade">Faculdade / Universidade</label>
+        <div class="select-wrap">
+          <select id="faculdade">
+            <option value="">Selecione sua faculdade...</option>
+            <option>UFC — Universidade Federal do Ceará</option>
+            <option>UECE — Universidade Estadual do Ceará</option>
+            <option>IFCE — Instituto Federal do Ceará</option>
+            <option>UniChristus</option>
+            <option>Unifor — Universidade de Fortaleza</option>
+            <option>Fanor — DeVry Brasil</option>
+            <option>UVA — Universidade Estadual Vale do Acaraú</option>
+            <option>INTA — Instituto Superior de Teologia Aplicada</option>
+            <option>UNIFAMETRO — Centro Universitário Fametro</option>
+            <option>UNINASSAU — Centro Universitário Maurício de Nassau</option>
+            <option>Estácio — Faculdade Estácio do Ceará</option>
+            <option>Pitágoras — Faculdade Pitágoras</option>
+            <option>UniAteneu — Centro Universitário Ateneu</option>
+            <option>SENAI — Serviço Nacional de Aprendizagem Industrial</option>
+            <option>Outra</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Tipo de viagem</label>
+        <div class="trip-options">
+          <div class="trip-option">
+            <input type="radio" name="viagem" id="ida-volta" value="Ida e Volta" checked>
+            <label for="ida-volta"><span class="ico">🔄</span>Ida e Volta</label>
+          </div>
+          <div class="trip-option">
+            <input type="radio" name="viagem" id="so-ida" value="Só Ida">
+            <label for="so-ida"><span class="ico">➡️</span>Só Ida</label>
+          </div>
+          <div class="trip-option">
+            <input type="radio" name="viagem" id="so-volta" value="Só Volta">
+            <label for="so-volta"><span class="ico">⬅️</span>Só Volta</label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-submit" onclick="handleSubmit()">Confirmar vaga 🎟️</button>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div class="success-panel" id="success-panel">
+      <span class="check">✅</span>
+      <h2>Vaga confirmada!</h2>
+      <div class="success-detail" id="success-detail"></div>
+      <p>Boa viagem! Esteja no ponto no horário combinado.</p>
+      <button class="btn-new" onclick="resetForm()">+ Cadastrar outra pessoa</button>
+    </div>
+  </div>
+
+  <!-- LIST CARD -->
+  <div class="card" id="list-card" style="display:none">
+    <div class="section-label">
+      🗂️ Cadastrados hoje
+      <span class="count-badge" id="count">0</span>
+    </div>
+    <div class="registrations-list" id="reg-list"></div>
+  </div>
+</div>
+
+<!-- BOTÃO ADMIN (canto inferior direito) -->
+<button class="admin-btn" onclick="toggleModal(true)" title="Painel do administrador">⚙️</button>
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modal-overlay" onclick="toggleModal(false)"></div>
+
+<!-- MODAL ADMIN -->
+<div class="modal" id="admin-modal">
+  <div class="modal-title">🔐 Administrador</div>
+  <div id="admin-msg"></div>
+  <div id="senha-wrap" class="field">
+    <label for="admin-senha">Senha</label>
+    <input type="password" id="admin-senha" placeholder="Digite a senha..." onkeydown="if(event.key==='Enter') adminLogin()">
+  </div>
+  <div id="admin-actions" style="display:none">
+    <button class="btn-danger" id="btn-fechar" onclick="fecharCadastro()">🔒 Fechar cadastro agora</button>
+    <button class="btn-success" id="btn-abrir" onclick="abrirCadastro()" style="display:none">🔓 Reabrir cadastro</button>
+  </div>
+  <button class="btn-new" id="btn-entrar" onclick="adminLogin()" style="width:100%;margin-top:8px">Entrar</button>
+  <button class="btn-new" onclick="toggleModal(false)" style="width:100%;margin-top:8px">Fechar</button>
+</div>
+
+<script>
+  const SENHA = 'ceara2003';
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzGaGRwjmaJHHFbv61bRl3BS0vqNVv2K4dL-PZvln3OnaZeywJ7RJOcgfz45zcqtVjj/exec';
+  const DIAS_PT = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  const MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+  // ---- HELPERS ----
+  function getTodayKey() {
+    const d = new Date();
+    return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+  }
+  function isWeekend() { const d = new Date().getDay(); return d===0||d===6; }
+  function isBeforeEight() { return new Date().getHours() < 8; }
+  function formatDateLabel() {
+    const d = new Date();
+    return DIAS_PT[d.getDay()]+', '+d.getDate()+' de '+MESES_PT[d.getMonth()]+' de '+d.getFullYear();
+  }
+  function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function show(id) { document.getElementById(id).style.display=''; }
+  function hide(id) { document.getElementById(id).style.display='none'; }
+
+  // ---- STORAGE ----
+  function getRegKey()    { return 'onibus_reg_'+getTodayKey(); }
+  function getClosedKey() { return 'onibus_closed_'+getTodayKey(); }
+
+  function loadRegistrations() {
+    try { const r=localStorage.getItem(getRegKey()); return r?JSON.parse(r):[]; }
+    catch { return []; }
+  }
+  function saveRegistrations(list) { localStorage.setItem(getRegKey(), JSON.stringify(list)); }
+  function isClosed() { return localStorage.getItem(getClosedKey())==='1'; }
+  function setClosed(v) { if(v) localStorage.setItem(getClosedKey(),'1'); else localStorage.removeItem(getClosedKey()); }
+
+  // ---- PAGE STATE ----
+  function renderPage() {
+    ['weekend-banner','early-banner','closed-banner','form-card','list-card'].forEach(hide);
+
+    if (isWeekend())       { show('weekend-banner'); return; }
+    if (isBeforeEight())   { show('early-banner'); scheduleAt8(); return; }
+    if (isClosed())        { show('closed-banner'); renderList(); return; }
+
+    show('form-card');
+    renderList();
+  }
+
+  function scheduleAt8() {
+    const now = new Date();
+    const open = new Date(now);
+    open.setHours(8,0,0,0);
+    const ms = open - now;
+    if (ms > 0) setTimeout(renderPage, ms);
+  }
+
+  // ---- LIST ----
+  function badgeClass(tipo) {
+    if (tipo==='Ida e Volta') return 'badge-ida-volta';
+    if (tipo==='Só Ida') return 'badge-ida';
+    return 'badge-volta';
+  }
+
+  function renderList() {
+    const list = loadRegistrations();
+    document.getElementById('count').textContent = list.length;
+    if (list.length===0) { hide('list-card'); return; }
+    show('list-card');
+    document.getElementById('reg-list').innerHTML = list.map((r,i) => {
+      const ini = r.nome.trim().split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      return '<div class="reg-item" style="animation-delay:'+i*0.06+'s">'
+        +'<div class="reg-avatar">'+ini+'</div>'
+        +'<div class="reg-info">'
+        +'<div class="reg-name">'+escHtml(r.nome)+'</div>'
+        +'<div class="reg-detail">🎓 '+escHtml(r.faculdade)+'</div>'
+        +'</div>'
+        +'<span class="reg-badge '+badgeClass(r.viagem)+'">'+escHtml(r.viagem)+'</span>'
+        +'</div>';
+    }).join('');
+  }
+
+  // ---- SUBMIT ----
+  function handleSubmit() {
+    const nome = document.getElementById('nome').value.trim();
+    const faculdade = document.getElementById('faculdade').value;
+    const viagem = document.querySelector('input[name="viagem"]:checked').value;
+    if (!nome) { shake('nome'); return; }
+    if (!faculdade) { shake('faculdade'); return; }
+
+    const agora = new Date();
+    const hora = agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const data = formatDateLabel();
+
+    const list = loadRegistrations();
+    list.push({ nome, faculdade, viagem, hora });
+    saveRegistrations(list);
+
+    hide('form-section');
+    show('success-panel');
+    document.getElementById('success-detail').innerHTML =
+      '👤 <span>'+escHtml(nome)+'</span><br>'
+      +'🎓 <span>'+escHtml(faculdade)+'</span><br>'
+      +'🚌 <span>'+escHtml(viagem)+'</span><br>'
+      +'📅 <span>'+data+'</span>';
+    renderList();
+
+    // Envia para o Google Sheets
+    enviarParaSheets({ nome, faculdade, viagem, hora, data });
+  }
+
+  function enviarParaSheets(dados) {
+    fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    }).catch(function(err) { console.warn('Erro ao enviar para Sheets:', err); });
+  }
+
+  function shake(id) {
+    const el = document.getElementById(id);
+    el.style.borderColor='var(--red)';
+    el.style.boxShadow='0 0 0 3px rgba(239,68,68,.15)';
+    setTimeout(()=>{ el.style.borderColor=''; el.style.boxShadow=''; }, 1400);
+    el.focus();
+  }
+
+  function resetForm() {
+    document.getElementById('nome').value='';
+    document.getElementById('faculdade').value='';
+    document.querySelector('input[name="viagem"][value="Ida e Volta"]').checked=true;
+    show('form-section');
+    hide('success-panel');
+  }
+
+  // ---- ADMIN MODAL ----
+  function toggleModal(open) {
+    document.body.classList.toggle('modal-open', open);
+    if (!open) {
+      document.getElementById('admin-senha').value='';
+      document.getElementById('admin-msg').innerHTML='';
+      show('senha-wrap');
+      hide('admin-actions');
+      show('btn-entrar');
+    }
+  }
+
+  function adminLogin() {
+    const val = document.getElementById('admin-senha').value;
+    if (val === SENHA) {
+      document.getElementById('admin-msg').innerHTML='<p class="msg-ok">✅ Acesso liberado!</p>';
+      hide('senha-wrap');
+      hide('btn-entrar');
+      show('admin-actions');
+      if (isClosed()) { show('btn-abrir'); hide('btn-fechar'); }
+      else            { show('btn-fechar'); hide('btn-abrir'); }
+    } else {
+      document.getElementById('admin-msg').innerHTML='<p class="msg-error">❌ Senha incorreta.</p>';
+      document.getElementById('admin-senha').value='';
+      document.getElementById('admin-senha').focus();
+    }
+  }
+
+  function fecharCadastro() { setClosed(true);  toggleModal(false); renderPage(); }
+  function abrirCadastro()  { setClosed(false); toggleModal(false); renderPage(); }
+
+  // ---- INIT ----
+  document.getElementById('date-label').textContent = formatDateLabel();
+  renderPage();
+
+  // Recarrega à meia-noite para atualizar a data
+  const now = new Date();
+  const midnight = new Date(now); midnight.setHours(24,0,0,0);
+  setTimeout(()=>location.reload(), midnight-now);
+</script>
+</body>
+</html>
