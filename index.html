@@ -550,18 +550,29 @@
     enviarParaSheets({ nome, faculdade, viagem, hora, data });
   }
 
-  function enviarParaSheets(dados) {
-    var url = dados.faculdade.toUpperCase().indexOf('UNIFAMETRO') !== -1
-      ? SHEETS_URL_UNIFAMETRO
-      : SHEETS_URL_GERAL;
-    fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados)
-    }).catch(function(err) { console.warn('Erro ao enviar para Sheets:', err); });
-  }
+function enviarParaSheets(dados) {
+  var url = dados.faculdade.toUpperCase().indexOf('UNIFAMETRO') !== -1
+    ? SHEETS_URL_UNIFAMETRO
+    : SHEETS_URL_GERAL;
 
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(dados)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(j) {
+    console.log('✅ Sheets recebeu:', j);
+  })
+  .catch(function(err) {
+    console.warn('❌ Falha no envio:', err);
+    var aviso = document.createElement('p');
+    aviso.style.cssText = 'color:#EF4444;font-size:13px;margin-top:16px;text-align:center';
+    aviso.textContent = '⚠️ Não foi possível registrar no sistema. Avise o administrador.';
+    document.getElementById('success-panel').appendChild(aviso);
+  });
+}
+ 
   function shake(id) {
     const el = document.getElementById(id);
     el.style.borderColor='var(--red)';
